@@ -5,6 +5,7 @@ import os
 from solver import Solver
 from time import sleep
 import numpy as np
+import random
 
 class Game:
     def __init__(self, size, prob):
@@ -32,17 +33,22 @@ class Game:
     def run(self):
         running = True
         while running:
-            for event in pygame.event.get():
-                # print("pygame.MOUSEBUTTONDOWN",pygame.MOUSEBUTTONDOWN)
-                # print("event.type",event.type)
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.MOUSEBUTTONDOWN and not (self.board.getWon() or self.board.getLost()):
-                    rightClick = pygame.mouse.get_pressed(num_buttons=3)[2]
-                    # print("pygame.mouse.get_pos()",pygame.mouse.get_pos())
-                    self.handleClick(pygame.mouse.get_pos(), rightClick)
-                if event.type == pygame.KEYDOWN:
-                    self.solver.move()
+            # for event in pygame.event.get():
+            #     # print("pygame.MOUSEBUTTONDOWN",pygame.MOUSEBUTTONDOWN)
+            #     # print("event.type",event.type)
+            #     if event.type == pygame.QUIT:
+            #         running = False
+            #     if event.type == pygame.MOUSEBUTTONDOWN and not (self.board.getWon() or self.board.getLost()):
+            #         rightClick = pygame.mouse.get_pressed(num_buttons=3)[2]
+            #         # print("pygame.mouse.get_pos()",pygame.mouse.get_pos())
+            #         self.handleClick(pygame.mouse.get_pos(), rightClick)
+            #     if event.type == pygame.KEYDOWN:
+            #         self.solver.move()
+            index = (random.randint(0, self.size[0]-1), random.randint(0, self.size[1]-1))
+            flag = bool(random.randint(0, 1))
+            print("WWWWWWWWWW: ", (random.randint(0, self.size[0]-1), random.randint(0, self.size[1]-1)), flag)
+            self.board.handleClick(self.board.getPiece(index), flag)
+            self.solver.move()
             self.screen.fill((0, 0, 0))
             self.draw()
             self.update_state()
@@ -52,11 +58,12 @@ class Game:
             if self.board.getWon():
                 self.win()
                 running = False
+            sleep(1.5)
         pygame.quit()
 
 
     def update_state(self):
-        print("=============update_state=============")
+        # print("=============update_state=============")
         state = np.zeros(self.size)
         i = 0
         
@@ -75,6 +82,9 @@ class Game:
                 elif self.getImageString(piece) == "bomb-at-clicked-block":
                     print("bomb-at-clicked-block")
                     continue
+                elif self.getImageString(piece) == "wrong-flag":
+                    print("wrong-flag")
+                    continue
                 else:
                     state[i,j]=int(self.getImageString(piece))
                     
@@ -85,7 +95,7 @@ class Game:
             #     topLeft = topLeft[0] + self.pieceSize[0], topLeft[1]
             # topLeft = (0, topLeft[1] + self.pieceSize[1])
         # print()
-        print(state)
+        # print(state)
 
     def draw(self):
         topLeft = (0, 0)
