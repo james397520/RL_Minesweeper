@@ -17,6 +17,8 @@ class Game:
         self.pieceSize = (self.sizeScreen[0] / size[1], self.sizeScreen[1] / size[0]) 
         self.loadPictures()
         self.solver = Solver(self.board)
+        self.state = np.zeros(self.size)-1
+        self.point = 0
 
     def loadPictures(self):
         self.images = {}
@@ -31,8 +33,13 @@ class Game:
             self.images[fileName.split(".")[0]] = img
             
     def run(self):
+        train = True
+        # while train:
+            # self.state = np.zeros(self.size)-1
+            # self.__init__([8,8], 0.09)
         running = True
         while running:
+            # print(running)
             # for event in pygame.event.get():
             #     # print("pygame.MOUSEBUTTONDOWN",pygame.MOUSEBUTTONDOWN)
             #     # print("event.type",event.type)
@@ -44,27 +51,59 @@ class Game:
             #         self.handleClick(pygame.mouse.get_pos(), rightClick)
             #     if event.type == pygame.KEYDOWN:
             #         self.solver.move()
-            index = (random.randint(0, self.size[0]-1), random.randint(0, self.size[1]-1))
-            flag = bool(random.randint(0, 1))
-            print("WWWWWWWWWW: ", (random.randint(0, self.size[0]-1), random.randint(0, self.size[1]-1)), flag)
-            self.board.handleClick(self.board.getPiece(index), flag)
+            can_be_choose = np.argwhere(self.state == -1)
+            # print("CCCCVVVBBBB",can_be_choose.shape)
+            # print(can_be_choose)
+            if can_be_choose.shape[0] == 0:
+                can_be_choose = np.argwhere(self.state == -2)
+                # print(can_be_choose)
+                print("ONLY FLAG")
+                choose = random.randint(0, can_be_choose.shape[0]-1)
+                flag = True
+                print(choose, flag)
+                index = can_be_choose[choose]
+                self.board.handleClick(self.board.getPiece(index), flag)
+                print("GoGO")
+            else:
+                choose = random.randint(0, can_be_choose.shape[0]-1)
+                index = can_be_choose[choose]
+                # print("be choose", index)
+                flag = bool(random.randint(0, 1))
+                self.board.handleClick(self.board.getPiece(index), flag)
+            
             self.solver.move()
+
             self.screen.fill((0, 0, 0))
             self.draw()
             self.update_state()
-            # break
             pygame.display.flip()
-            
-            if self.board.getWon():
-                self.win()
+            if self.board.getLost():
                 running = False
-            sleep(1.5)
+                print("Lost: ",running)
+                self.point-=10
+                
+                # pygame.quit()
+
+
+            elif self.board.getWon():
+                # self.win()
+                running = False
+                print("WIN: ",running)
+                self.point += 10
+                # pygame.quit()
+
+            # print(running)
+        print(self.state)
+        print("point: ", self.point)
+        sleep(1)
+            
         pygame.quit()
+        print("nextROUND")
 
 
     def update_state(self):
         # print("=============update_state=============")
-        state = np.zeros(self.size)
+        
         i = 0
         
         for row in self.board.getBoard():
@@ -73,20 +112,26 @@ class Game:
                 # rect = pygame.Rect(topLeft, self.pieceSize)
                 # print(self.getImageString(piece), end=" ")
                 if self.getImageString(piece) == "empty-block":
-                    state[i,j]=-1
+                    self.state[i,j]=-1
                 elif self.getImageString(piece) == "flag":
-                    state[i,j]=-2
+                    self.state[i,j]=-2
                 elif self.getImageString(piece) == "unclicked-bomb":
-                    print("unclicked-bom")
-                    continue
+                    # print("unclicked-bom")
+                    self.state[i,j]=-3
+                    # continue
+
                 elif self.getImageString(piece) == "bomb-at-clicked-block":
-                    print("bomb-at-clicked-block")
-                    continue
+                    # print("bomb-at-clicked-block")
+                    self.state[i,j]=-4
+                    # continue
+
                 elif self.getImageString(piece) == "wrong-flag":
-                    print("wrong-flag")
-                    continue
+                    # print("wrong-flag")
+                    self.state[i,j]=-5
+                    # continue
+
                 else:
-                    state[i,j]=int(self.getImageString(piece))
+                    self.state[i,j]=int(self.getImageString(piece))
                     
                 j = j+1
             i = i+1
@@ -95,7 +140,7 @@ class Game:
             #     topLeft = topLeft[0] + self.pieceSize[0], topLeft[1]
             # topLeft = (0, topLeft[1] + self.pieceSize[1])
         # print()
-        # print(state)
+        # print(self.state)
 
     def draw(self):
         topLeft = (0, 0)
@@ -125,7 +170,7 @@ class Game:
         print(self.board.getPiece(index), ",", flag)
         self.board.handleClick(self.board.getPiece(index), flag)
 
-    def win(self):
+    # def win(self):
         # sound = pygame.mixer.Sound('win.wav')
         # sound.play()
-        sleep(3)
+        # sleep(3)
