@@ -31,14 +31,15 @@ class Game:
             img = img.convert()
             img = pygame.transform.scale(img, (int(self.pieceSize[0]), int(self.pieceSize[1])))
             self.images[fileName.split(".")[0]] = img
-            
-    def run(self):
-        train = True
+    
+
+    def run(self, index, flag):
+        done = False
         # while train:
             # self.state = np.zeros(self.size)-1
             # self.__init__([8,8], 0.09)
-        running = True
-        while running:
+        # running = True
+        # while running:
             # print(running)
             # for event in pygame.event.get():
             #     # print("pygame.MOUSEBUTTONDOWN",pygame.MOUSEBUTTONDOWN)
@@ -51,54 +52,57 @@ class Game:
             #         self.handleClick(pygame.mouse.get_pos(), rightClick)
             #     if event.type == pygame.KEYDOWN:
             #         self.solver.move()
-            can_be_choose = np.argwhere(self.state == -1)
-            # print("CCCCVVVBBBB",can_be_choose.shape)
-            # print(can_be_choose)
-            if can_be_choose.shape[0] == 0:
-                can_be_choose = np.argwhere(self.state == -2)
-                # print(can_be_choose)
-                print("ONLY FLAG")
-                choose = random.randint(0, can_be_choose.shape[0]-1)
-                flag = True
-                print(choose, flag)
-                index = can_be_choose[choose]
-                self.board.handleClick(self.board.getPiece(index), flag)
-                print("GoGO")
-            else:
-                choose = random.randint(0, can_be_choose.shape[0]-1)
-                index = can_be_choose[choose]
-                # print("be choose", index)
-                flag = bool(random.randint(0, 1))
-                self.board.handleClick(self.board.getPiece(index), flag)
+            # can_be_choose = np.argwhere(self.state == -1)
+            # # print("CCCCVVVBBBB",can_be_choose.shape)
+            # # print(can_be_choose)
+            # if can_be_choose.shape[0] == 0:
+            #     can_be_choose = np.argwhere(self.state == -2)
+            #     # print(can_be_choose)
+            #     print("ONLY FLAG")
+            #     choose = random.randint(0, can_be_choose.shape[0]-1)
+            #     flag = True
+            #     print(choose, flag)
+            #     index = can_be_choose[choose]
+            #     # self.board.handleClick(self.board.getPiece(index), flag)
+            #     print("GoGO")
+            # else:
+            #     choose = random.randint(0, can_be_choose.shape[0]-1)
+            #     index = can_be_choose[choose]
+            #     # print("be choose", index)
+            #     flag = bool(random.randint(0, 1))
+        print(self.state)
+        self.board.handleClick(self.board.getPiece(index), flag)
             
-            self.solver.move()
+        self.solver.move()
 
-            self.screen.fill((0, 0, 0))
-            self.draw()
-            self.update_state()
-            pygame.display.flip()
-            if self.board.getLost():
-                running = False
-                print("Lost: ",running)
-                self.point-=10
-                
-                # pygame.quit()
+        self.screen.fill((0, 0, 0))
+        self.draw()
+        self.update_state()
+        pygame.display.flip()
+        if self.board.getLost():
+            # running = False
+            print("Lost: ")
+            self.point-=10
+            done = True
+            pygame.quit()
 
 
-            elif self.board.getWon():
-                # self.win()
-                running = False
-                print("WIN: ",running)
-                self.point += 10
-                # pygame.quit()
+        elif self.board.getWon():
+            # self.win()
+            # running = False
+            print("WIN: ")
+            self.point += 10
+            done = True
+            pygame.quit()
 
             # print(running)
-        print(self.state)
-        print("point: ", self.point)
-        sleep(1)
-            
-        pygame.quit()
+        # print(self.state)
+        # print("point: ", self.point)
+        # sleep(1)
+        
+        # pygame.quit()
         print("nextROUND")
+        return self.state, self.point, done
 
 
     def update_state(self):
