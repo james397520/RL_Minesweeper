@@ -4,15 +4,28 @@ import torch.nn as nn
 
 # DQN模型
 class DQN(nn.Module):
-    def __init__(self, state_size, action_size, hidden_size=64):
+    def __init__(self, size):
         super(DQN, self).__init__()
-        self.fc = nn.Sequential(
-            nn.Linear(state_size, hidden_size),
+        self.size = size
+        self.CNN = nn.Sequential(
+            nn.Conv2d(12, 32, kernel_size=3, stride=1, padding=1),
+            # nn.Linear(state_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, hidden_size),
+            nn.Conv2d(32, 16, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
-            nn.Linear(hidden_size, action_size)
+            nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1),
+            nn.ReLU()
         )
+        self.head_indx = torch.nn.Linear(self.size[0]*self.size[1], self.size[0]*self.size[1])
+        self.head_flag = torch.nn.Linear(self.size[0]*self.size[1], 2)
 
     def forward(self, state):
-        return self.fc(state)
+        print(state.size())
+        batch_size, channels, height, width = state.size()
+        state = self.CNN(state)
+        state = state.view(batch_size, -1)
+        idx = self.head_indx(state)
+        act = self.head_flag(state)
+        # act = result[:, :result.shape[1]-2, :, :]
+        # flag = result[:, :-2, :, :]
+        return idx, act
