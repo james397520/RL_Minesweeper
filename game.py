@@ -13,9 +13,9 @@ class Game:
         self.board = Board(size, prob)
         pygame.init()
         self.sizeScreen = 800, 800
-        self.screen = pygame.display.set_mode(self.sizeScreen)
+        # self.screen = pygame.display.set_mode(self.sizeScreen)
         self.pieceSize = (self.sizeScreen[0] / size[1], self.sizeScreen[1] / size[0]) 
-        self.loadPictures()
+        # self.loadPictures()
         self.solver = Solver(self.board)
         self.state = np.zeros(self.size)-1
         self.point = 0
@@ -35,56 +35,22 @@ class Game:
 
     def run(self, index, flag):
         done = False
-        # while train:
-            # self.state = np.zeros(self.size)-1
-            # self.__init__([8,8], 0.09)
-        # running = True
-        # while running:
-            # print(running)
-            # for event in pygame.event.get():
-            #     # print("pygame.MOUSEBUTTONDOWN",pygame.MOUSEBUTTONDOWN)
-            #     # print("event.type",event.type)
-            #     if event.type == pygame.QUIT:
-            #         running = False
-            #     if event.type == pygame.MOUSEBUTTONDOWN and not (self.board.getWon() or self.board.getLost()):
-            #         rightClick = pygame.mouse.get_pressed(num_buttons=3)[2]
-            #         # print("pygame.mouse.get_pos()",pygame.mouse.get_pos())
-            #         self.handleClick(pygame.mouse.get_pos(), rightClick)
-            #     if event.type == pygame.KEYDOWN:
-            #         self.solver.move()
-            # can_be_choose = np.argwhere(self.state == -1)
-            # # print("CCCCVVVBBBB",can_be_choose.shape)
-            # # print(can_be_choose)
-            # if can_be_choose.shape[0] == 0:
-            #     can_be_choose = np.argwhere(self.state == -2)
-            #     # print(can_be_choose)
-            #     print("ONLY FLAG")
-            #     choose = random.randint(0, can_be_choose.shape[0]-1)
-            #     flag = True
-            #     print(choose, flag)
-            #     index = can_be_choose[choose]
-            #     # self.board.handleClick(self.board.getPiece(index), flag)
-            #     print("GoGO")
-            # else:
-            #     choose = random.randint(0, can_be_choose.shape[0]-1)
-            #     index = can_be_choose[choose]
-            #     # print("be choose", index)
-            #     flag = bool(random.randint(0, 1))
         print(self.state)
+        print(index.shape)
         self.board.handleClick(self.board.getPiece(index), flag)
             
         self.solver.move()
 
-        self.screen.fill((0, 0, 0))
-        self.draw()
+        # self.screen.fill((0, 0, 0))
+        # self.draw()
         self.update_state()
-        pygame.display.flip()
+        # pygame.display.flip()
         if self.board.getLost():
             # running = False
             print("Lost: ")
-            self.point-=10
+            self.point-=9
             done = True
-            pygame.quit()
+            # pygame.quit()
 
 
         elif self.board.getWon():
@@ -93,7 +59,7 @@ class Game:
             print("WIN: ")
             self.point += 10
             done = True
-            pygame.quit()
+            # pygame.quit()
 
             # print(running)
         # print(self.state)
