@@ -6,6 +6,7 @@ from solver import Solver
 from time import sleep
 import numpy as np
 import random
+import math
 
 class Game:
     def __init__(self, size, prob):
@@ -35,8 +36,8 @@ class Game:
 
     def run(self, index, flag):
         done = False
-        print(self.state)
-        print(index.shape)
+        
+        # print(index.shape)
         self.board.handleClick(self.board.getPiece(index), flag)
             
         self.solver.move()
@@ -44,6 +45,8 @@ class Game:
         # self.screen.fill((0, 0, 0))
         # self.draw()
         self.update_state()
+        print("===========================")
+        print(self.state)
         # pygame.display.flip()
         if self.board.getLost():
             # running = False
@@ -59,15 +62,16 @@ class Game:
             print("WIN: ")
             self.point += 10
             done = True
+            sleep(1)
             # pygame.quit()
 
             # print(running)
         # print(self.state)
         # print("point: ", self.point)
-        # sleep(1)
+        
         
         # pygame.quit()
-        print("nextROUND")
+        # print("nextROUND")
         return self.state, self.point, done
 
 
@@ -83,6 +87,8 @@ class Game:
                 # print(self.getImageString(piece), end=" ")
                 if self.getImageString(piece) == "empty-block":
                     self.state[i,j]=-1
+                    
+                    
                 elif self.getImageString(piece) == "flag":
                     self.state[i,j]=-2
                 elif self.getImageString(piece) == "unclicked-bomb":
@@ -98,6 +104,7 @@ class Game:
                 elif self.getImageString(piece) == "wrong-flag":
                     # print("wrong-flag")
                     self.state[i,j]=-5
+                    self.point -=1
                     # continue
 
                 else:
@@ -105,6 +112,14 @@ class Game:
                     
                 j = j+1
             i = i+1
+            # print("QQQ: ", np.sum(self.state==-1))
+            # print("cnt: ", np.sum(self.state == -1) / (self.sizeScreen[0] * self.sizeScreen[1]))
+        ratio = np.sum(self.state == -1) / (self.sizeScreen[0] * self.sizeScreen[1])
+        epsilon = 1e-10
+        log_ratio = math.log(ratio + epsilon) 
+        mapped_value = log_ratio / math.log(epsilon)
+
+        self.point += 1 * mapped_value
             #     image = self.images[self.getImageString(piece)]
             #     self.screen.blit(image, topLeft) 
             #     topLeft = topLeft[0] + self.pieceSize[0], topLeft[1]
