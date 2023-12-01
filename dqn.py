@@ -8,7 +8,7 @@ class DQN(nn.Module):
         super(DQN, self).__init__()
         self.size = size
         self.CNN = nn.Sequential(
-            nn.Conv2d(12, 32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(15, 32, kernel_size=3, stride=1, padding=1),
             # nn.Linear(state_size, hidden_size),
             nn.ReLU(),
             nn.Conv2d(32, 16, kernel_size=5, stride=1, padding=2),
@@ -20,7 +20,7 @@ class DQN(nn.Module):
         self.head_flag = torch.nn.Linear(self.size[0]*self.size[1], 2)
 
     def forward(self, state):
-        print(state.size())
+        # print(state.size())
         batch_size, channels, height, width = state.size()
         state = self.CNN(state)
         state = state.view(batch_size, -1)
