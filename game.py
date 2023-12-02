@@ -12,7 +12,7 @@ class Game:
     def __init__(self, size, prob):
         self.size = size
         self.board = Board(size, prob)
-        pygame.init()
+        # pygame.init()
         self.sizeScreen = 800, 800
         # self.screen = pygame.display.set_mode(self.sizeScreen)
         self.pieceSize = (self.sizeScreen[0] / size[1], self.sizeScreen[1] / size[0]) 
@@ -45,13 +45,13 @@ class Game:
         # self.screen.fill((0, 0, 0))
         # self.draw()
         self.update_state()
-        print("===========================")
-        print(self.state)
+        # print("===========================")
+        # print(self.state)
         # pygame.display.flip()
         if self.board.getLost():
             # running = False
-            print("Lost: ")
-            self.point-=9
+            self.point-=10
+            print("Lost: ", self.point)
             done = True
             # pygame.quit()
 
@@ -59,10 +59,11 @@ class Game:
         elif self.board.getWon():
             # self.win()
             # running = False
-            print("WIN: ")
             self.point += 10
+            print("WIN: ", self.point)
             done = True
-            sleep(1)
+
+            # sleep(1)
             # pygame.quit()
 
             # print(running)
@@ -91,6 +92,7 @@ class Game:
                     
                 elif self.getImageString(piece) == "flag":
                     self.state[i,j]=-2
+
                 elif self.getImageString(piece) == "unclicked-bomb":
                     # print("unclicked-bom")
                     self.state[i,j]=-3
@@ -104,7 +106,7 @@ class Game:
                 elif self.getImageString(piece) == "wrong-flag":
                     # print("wrong-flag")
                     self.state[i,j]=-5
-                    self.point -=1
+                    self.point -=2
                     # continue
 
                 else:

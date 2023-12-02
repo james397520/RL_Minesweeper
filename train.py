@@ -11,6 +11,7 @@ import sys
 from game import Game
 from time import sleep
 import os
+import pygame
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -86,7 +87,8 @@ def replay(memory, target_model, model, optimizer, batch_size):
 
         # 从当前模型获取预测值
         position, act = model(state_tensor)
-
+        position = torch.max(position)
+        act = torch.max(act)
         # reward = torch.tensor([reward], device=device).float()
         # done = torch.tensor([done], device=device).float()
 
@@ -97,20 +99,22 @@ def replay(memory, target_model, model, optimizer, batch_size):
         # act_target = act_target.float()
 
         # 確保模型的輸出也是浮點型
-        position, act = model(state_tensor)
+        # position, act = model(state_tensor)
         # print("QQQQQposition: ", position)
 
-        qposition = position.gather(1, action)#.float()
+        # qposition = position.gather(1, action)#.float()
         # print("position_gather: ", qposition)
         act = act.float()
 
         # 计算损失
         # position_loss = nn.MSELoss()(position, position_target)
         # act_loss = nn.MSELoss()(act, act_target)
-        print("position: ", position.size())
-        print("position_target: ", position_target.size())
-        print("act: ", act.size())
-        print("act_target: ", act_target.size())
+        # print("position: ", position.size())
+        # print("position_target: ", position_target.size(),",",position_target.squeeze(0).size())
+        # print("act: ", act.size())
+        # print("act_target: ", act_target.size())
+        print(position, position_target.unsqueeze(0))
+        print(act, act_target.unsqueeze(0))
         position_loss = nn.MSELoss()(position, position_target.unsqueeze(0))
         act_loss = nn.MSELoss()(act, act_target.unsqueeze(0))
 
@@ -133,8 +137,8 @@ def train(state_size, prob):
     memory = deque(maxlen=10000)
     update_frequency = 0
     # 模型與優化器
-    model = DQN(state_size).cuda()
-    target_model = DQN(state_size).cuda()
+    model = DQN(state_size).to(device)
+    target_model = DQN(state_size).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 
@@ -143,10 +147,15 @@ def train(state_size, prob):
     game = Game(state_size, prob)
     for episode in range(max_episodes):
         game.__init__(state_size, prob)
+        pygame.init()
         state = np.zeros(state_size)-1
         done = False
-        
+        game.screen = pygame.display.set_mode(game.sizeScreen)
+        game.loadPictures()
+        reward=0
         while not done:
+            
+
             if np.random.rand() <= epsilon:
                 # 探索
                 can_be_choose = np.argwhere(state == -1)
@@ -184,24 +193,30 @@ def train(state_size, prob):
                 (row, col) = get_position(index_1d, state_size[0],state_size[1])
                 index_2d = np.array([row, col])
                 # print("AAAAAAAAAAIIIIIIII")
-            print("IAIAIAIAIA",index_1d, "QQQQQQDDD",act)
-            print("index_2d:", index_2d)
+            # print("IAIAIAIAIA",index_1d, "QQQQQQDDD",act)
+            # print("index_2d:", index_2d)
+            if (state[index_2d[0],index_2d[1]] != -1) or (state[index_2d[0],index_2d[1]] != -2):
+                reward-=1
             next_state, reward, done = game.run(index_2d, act)
-
+            game.screen.fill((0, 0, 0))
+            game.draw()
+            pygame.display.flip()
+            # sleep(1)
             memory.append((state, index_1d, act, reward, next_state, done))
             state = next_state
             # print("done: ",done)
             total_reward += reward
-
+            
             if len(memory) > batch_size:
                 replay(memory, target_model, model, optimizer, batch_size)
-
+            
+        pygame.quit()
         update_target_model(target_model, model, update_frequency)
         update_frequency += 1
 
         epsilon = max(epsilon * epsilon_decay, min_epsilon)
         print(f"Episode: {episode}, Total reward: {total_reward}, Epsilon: {epsilon}")
-        # sleep(1)
+        
 
     # env.close()
 
